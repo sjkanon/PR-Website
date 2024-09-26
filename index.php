@@ -26,7 +26,7 @@ session_start();
                 <li><a href="logout.php">Uitloggen</a></li>
             <?php else: ?>
                 <li><a href="register.html">Registreren</a></li>
-                <li><a href="login.html">Inloggen</a></li>
+                <li><a href="login.php">Inloggen</a></li>
             <?php endif; ?>
         </ul>
     </nav>

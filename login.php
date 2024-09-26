@@ -1,45 +1,49 @@
 <?php
-session_start(); // Start de sessie
+session_start();
+require 'db.php'; // Zorg ervoor dat je de db.php bestande hebt
 
-// Verbind met de database (gebruik de juiste gegevens)
-$conn = new mysqli('localhost', 'pr_djm', '_7vd3nC37', 'techniekdjm_');
-
-// Controleer of de verbinding is geslaagd
-if ($conn->connect_error) {
-    die("Verbindingsfout: " . $conn->connect_error);
-}
-
-// Controleer of het formulier is verzonden
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Verkrijg de ingevoerde gegevens
-    $gebruikersnaam = $conn->real_escape_string($_POST['gebruikersnaam']);
+    $gebruikersnaam = $_POST['gebruikersnaam'];
     $wachtwoord = $_POST['wachtwoord'];
 
-    // Bereid een SQL-statement voor om SQL-injectie te voorkomen
-    $stmt = $conn->prepare("SELECT id, wachtwoord FROM gebruikers WHERE gebruikersnaam = ?");
-    $stmt->bind_param("s", $gebruikersnaam);
-    $stmt->execute();
-    $stmt->store_result();
-
-    // Controleer of de gebruiker bestaat
-    if ($stmt->num_rows > 0) {
-        $stmt->bind_result($id, $hashed_password);
-        $stmt->fetch();
-        
-        // Verifieer het ingevoerde wachtwoord met het gehashte wachtwoord in de database
-        iif (password_verify($wachtwoord, $hashed_password)) {
-            $_SESSION['gebruikersnaam'] = $gebruikersnaam;
-            header("Location: index.php"); // Verwijst de gebruiker naar de homepagina na succesvolle login
-            exit();
-        }
-        
-        } else {
-            echo "Ongeldig wachtwoord.";
-        }
+    // Controleer of gebruikersnaam en wachtwoord zijn ingevoerd
+    if (empty($gebruikersnaam) || empty($wachtwoord)) {
+        echo "Vul alstublieft beide velden in.";
     } else {
-        echo "Gebruiker niet gevonden.";
+        // Verkrijg de gegevens van de gebruiker
+        $stmt = $pdo->prepare("SELECT * FROM gebruikers WHERE gebruikersnaam = ?");
+        $stmt->execute([$gebruikersnaam]);
+        $gebruiker = $stmt->fetch();
+
+        // Controleer of de gebruiker bestaat en het wachtwoord klopt
+        if ($gebruiker && password_verify($wachtwoord, $gebruiker['wachtwoord'])) {
+            $_SESSION['gebruikersnaam'] = $gebruikersnaam;
+            header("Location: index.php"); // Verwijs naar de homepage
+            exit();
+        } else {
+            echo "Ongeldige gebruikersnaam of wachtwoord.";
+        }
     }
-    $stmt->close();
 }
-$conn->close();
 ?>
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inloggen</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Inloggen</h2>
+        <form action="login.php" method="POST">
+            <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
+            <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
+            <button type="submit">Inloggen</button>
+        </form>
+        <p><a href="register.html">Registreren</a></p>
+    </div>
+</body>
+</html>
