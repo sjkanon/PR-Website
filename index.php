@@ -22,6 +22,7 @@ session_start();
             <li><a href="contact.html">Contact</a></li>
 
             <?php if (isset($_SESSION['gebruikersnaam'])): ?>
+                <li><a href="kaarten.php">Kaarten</a></li>
                 <li><a href="profile.php">Profiel</a></li>
                 <li><a href="logout.php">Uitloggen</a></li>
             <?php else: ?>
