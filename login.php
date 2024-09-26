@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
             <button type="submit">Inloggen</button>
         </form>
-        <p><a href="register.html">Registreren</a></p>
+        <p><a href="register.php">Registreren</a></p>
     </div>
 </body>
 </html>

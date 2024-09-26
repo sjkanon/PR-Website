@@ -1,32 +1,48 @@
 <?php
-// Verbinding maken met de database (gebruik je databasegegevens)
-$conn = new mysqli('localhost', 'pr_djm', '_7vd3nC37', 'techniekdjm_');
+session_start();
+require 'db.php'; // Zorg ervoor dat je de db.php bestande hebt
 
-// Controleer of de verbinding is geslaagd
-if ($conn->connect_error) {
-    die("Verbindingsfout: " . $conn->connect_error);
-}
-
-// Controleer of het formulier is verzonden
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Verkrijg de ingevoerde gegevens van het formulier
-    $gebruikersnaam = $conn->real_escape_string($_POST['gebruikersnaam']);
+    $gebruikersnaam = $_POST['gebruikersnaam'];
     $wachtwoord = $_POST['wachtwoord'];
+    $gehashed_wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT); // Hash het wachtwoord
 
-    // Hash het wachtwoord voor veilige opslag
-    $hashed_wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
-
-    // Voeg de gebruiker toe aan de database
-    $stmt = $conn->prepare("INSERT INTO gebruikers (gebruikersnaam, wachtwoord) VALUES (?, ?)");
-    $stmt->bind_param("ss", $gebruikersnaam, $hashed_wachtwoord);
-
-    if ($stmt->execute()) {
-        echo "Nieuwe gebruiker succesvol geregistreerd.";
+    // Controleer of de gebruikersnaam al bestaat
+    $stmt = $pdo->prepare("SELECT * FROM gebruikers WHERE gebruikersnaam = ?");
+    $stmt->execute([$gebruikersnaam]);
+    if ($stmt->rowCount() > 0) {
+        echo "Deze gebruikersnaam is al in gebruik.";
     } else {
-        echo "Error: " . $stmt->error;
+        // Voeg de nieuwe gebruiker toe aan de database
+        $stmt = $pdo->prepare("INSERT INTO gebruikers (gebruikersnaam, wachtwoord) VALUES (?, ?)");
+        if ($stmt->execute([$gebruikersnaam, $gehashed_wachtwoord])) {
+            echo "Registratie succesvol! Je kunt nu inloggen.";
+            header("Location: login.php"); // Redirect naar login pagina
+            exit();
+        } else {
+            echo "Er is een fout opgetreden tijdens de registratie.";
+        }
     }
-
-    $stmt->close();
 }
-$conn->close();
 ?>
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registreren</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Registreren</h2>
+        <form action="register.php" method="POST">
+            <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
+            <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
+            <button type="submit">Registreren</button>
+        </form>
+        <p><a href="login.php">Al geregistreerd? Inloggen</a></p>
+    </div>
+</body>
+</html>
