@@ -1,27 +1,32 @@
 <?php
-// Verbinding maken met de database
-$conn = new mysqli('localhost', 'root', '', 'gebruikersDB');
+// Verbinding maken met de database (gebruik je databasegegevens)
+$conn = new mysqli('localhost', 'pr_djm', '_7vd3nC37', 'techniekdjm_');
 
-// Controleren of de verbinding is geslaagd
+// Controleer of de verbinding is geslaagd
 if ($conn->connect_error) {
     die("Verbindingsfout: " . $conn->connect_error);
 }
 
-// Verkrijg de ingevoerde gegevens van het formulier
-$gebruikersnaam = $_POST['gebruikersnaam'];
-$wachtwoord = $_POST['wachtwoord'];
+// Controleer of het formulier is verzonden
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Verkrijg de ingevoerde gegevens van het formulier
+    $gebruikersnaam = $conn->real_escape_string($_POST['gebruikersnaam']);
+    $wachtwoord = $_POST['wachtwoord'];
 
-// Het wachtwoord veilig hashen
-$hashed_wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
+    // Hash het wachtwoord voor veilige opslag
+    $hashed_wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
 
-// Voeg de nieuwe gebruiker toe aan de database
-$sql = "INSERT INTO gebruikers (gebruikersnaam, wachtwoord) VALUES ('$gebruikersnaam', '$hashed_wachtwoord')";
+    // Voeg de gebruiker toe aan de database
+    $stmt = $conn->prepare("INSERT INTO gebruikers (gebruikersnaam, wachtwoord) VALUES (?, ?)");
+    $stmt->bind_param("ss", $gebruikersnaam, $hashed_wachtwoord);
 
-if ($conn->query($sql) === TRUE) {
-    echo "Nieuwe gebruiker succesvol geregistreerd.";
-} else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
+    if ($stmt->execute()) {
+        echo "Nieuwe gebruiker succesvol geregistreerd.";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
 }
-
 $conn->close();
 ?>
