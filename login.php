@@ -6,4 +6,7 @@ if ($conn->connect_error){
     die("Verbindingsfout: " . $conn->connect_error);
 }
 
-$gebruikersnaam = 
+$gebruikersnaam = $_POST['gebruikersnaam'];
+$wachtwoord = $_POST['wachtwoord']
+
+$gebruikersnaam = $conn->real_escape_string($gebruikersnaam);
