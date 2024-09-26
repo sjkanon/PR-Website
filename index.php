@@ -14,7 +14,7 @@ session_start();
     <!-- Navigatiebalk -->
     <nav class="navbar">
         <div class="logo">
-            <a href="index.php">MijnWebsite</a>
+            <a href="index.php">PR Deventer Jeugd Musical</a>
         </div>
         <ul class="nav-links">
             <li><a href="index.php">Home</a></li>
