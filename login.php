@@ -6,3 +6,4 @@ if ($conn->connect_error){
     die("Verbindingsfout: " . $conn->connect_error);
 }
 
+$gebruikersnaam = 
