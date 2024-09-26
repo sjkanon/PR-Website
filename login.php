@@ -27,9 +27,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->fetch();
         
         // Verifieer het ingevoerde wachtwoord met het gehashte wachtwoord in de database
-        if (password_verify($wachtwoord, $hashed_password)) {
+        iif (password_verify($wachtwoord, $hashed_password)) {
             $_SESSION['gebruikersnaam'] = $gebruikersnaam;
-            echo "Succesvol ingelogd! Welkom, " . $gebruikersnaam;
+            header("Location: index.php"); // Verwijst de gebruiker naar de homepagina na succesvolle login
+            exit();
+        }
+        
         } else {
             echo "Ongeldig wachtwoord.";
         }
