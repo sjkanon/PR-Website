@@ -51,6 +51,15 @@ h2 {
     margin-bottom: 20px;
     color: #333;
 }
+
+/* Algemene body styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
 /* Navigatiebalk styling */
 .navbar {
     background-color: #333;
