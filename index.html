@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -10,21 +14,32 @@
     <!-- Navigatiebalk -->
     <nav class="navbar">
         <div class="logo">
-            <a href="index.html">PR Website</a>
+            <a href="index.php">MijnWebsite</a>
         </div>
         <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index.php">Home</a></li>
             <li><a href="about.html">Over Ons</a></li>
             <li><a href="contact.html">Contact</a></li>
-            <li><a href="register.html">Registreren</a></li>
-            <li><a href="index.html">Inloggen</a></li>
+
+            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
+                <li><a href="profile.php">Profiel</a></li>
+                <li><a href="logout.php">Uitloggen</a></li>
+            <?php else: ?>
+                <li><a href="register.html">Registreren</a></li>
+                <li><a href="index.html">Inloggen</a></li>
+            <?php endif; ?>
         </ul>
     </nav>
 
     <!-- Content -->
     <div class="content">
         <h1>Welkom op MijnWebsite!</h1>
-        <p>Hier kun je alles vinden over ons en onze diensten. Log in of registreer om toegang te krijgen tot extra functies.</p>
+        <p>Hier kun je alles vinden over ons en onze diensten.</p>
+        <?php if (isset($_SESSION['gebruikersnaam'])): ?>
+            <p>Je bent ingelogd als <?php echo $_SESSION['gebruikersnaam']; ?>. Welkom terug!</p>
+        <?php else: ?>
+            <p>Log in of registreer om toegang te krijgen tot extra functies.</p>
+        <?php endif; ?>
     </div>
 </body>
 </html>
