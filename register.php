@@ -30,20 +30,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registreren</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css\styles.css">
 </head>
 <body>
+
+<nav class="navbar">
+        <div class="logo">
+            <a href="index.php">PR Deventer Jeugd Musical</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.php">Home</a></li>
+            <li><a href="about.html">Over Ons</a></li>
+            <li><a href="contact.html">Contact</a></li>
+
+            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
+                <li><a href="kaarten.php">Kaarten</a></li>
+                <li><a href="profile.php">Profiel</a></li>
+                <li><a href="logout.php">Uitloggen</a></li>
+            <?php else: ?>
+                <li><a href="register.php">Registreren</a></li>
+                <li><a href="login.php">Inloggen</a></li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+
     <div class="form-container">
-        <div class="form-box">
+        <div class="form-box modern">
             <h2>Registreren</h2>
-            <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
-            <form action="register.php" method="POST">
-                <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
-                <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
-                <button type="submit">Registreren</button>
+            <form action="register_handler.php" method="POST">
+                <input type="text" name="username" placeholder="Gebruikersnaam" required>
+                <input type="email" name="email" placeholder="E-mail" required>
+                <input type="password" name="password" placeholder="Wachtwoord" required>
+                <input type="password" name="confirm_password" placeholder="Bevestig wachtwoord" required>
+                <button type="submit">Registreer</button>
             </form>
-            <p>Al een account? <a href="login.php">Inloggen</a></p>
+            <p>Al een account? <a href="login.php">Log hier in</a></p>
         </div>
     </div>
+
 </body>
 </html>

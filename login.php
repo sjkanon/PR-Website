@@ -34,21 +34,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
-    <div class="navbar">
+<nav class="navbar">
         <div class="logo">
-            <a href="index.php">MijnWebsite</a>
+            <a href="index.php">PR Deventer Jeugd Musical</a>
         </div>
         <ul class="nav-links">
             <li><a href="index.php">Home</a></li>
-            <li><a href="register.php">Registreren</a></li>
-            <li><a class="active" href="login.php">Inloggen</a></li>
+            <li><a href="about.html">Over Ons</a></li>
+            <li><a href="contact.html">Contact</a></li>
+
+            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
+                <li><a href="kaarten.php">Kaarten</a></li>
+                <li><a href="profile.php">Profiel</a></li>
+                <li><a href="logout.php">Uitloggen</a></li>
+            <?php else: ?>
+                <li><a href="register.php">Registreren</a></li>
+                <li><a href="login.php">Inloggen</a></li>
+            <?php endif; ?>
         </ul>
-        <div class="burger">
-            <div class="line1"></div>
-            <div class="line2"></div>
-            <div class="line3"></div>
-        </div>
-    </div>
+    </nav>
 
     <div class="form-container">
         <div class="form-box modern">
