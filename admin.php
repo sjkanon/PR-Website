@@ -71,7 +71,7 @@ try {
         <h2>Beheer Gebruikers</h2>
         <ul>
             <li><a href="new_user.php">Nieuwe Gebruiker Toevoegen</a></li>
-            <li><a href="view_users.php">Bekijk Alle Gebruikers</a></li>
+            <li><a href="gebruikers.php">Bekijk Alle Gebruikers</a></li>
         </ul>
         
         <h2>Statistieken</h2>
