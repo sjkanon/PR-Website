@@ -125,11 +125,12 @@ $zondagDifference = $lastZondagCurrent - $lastZondagPrevious;
                 </div>
             </div>
 
+
             <div id="gauges" class="gauge-container">
-                <div class="gauge" id="gaugeTotal"></div>
-                <div class="gauge" id="gaugeZaterdag"></div>
-                <div class="gauge" id="gaugeZondag"></div>
-            </div>
+    <div id="gaugeTotal" class="gauge"></div>
+    <div id="gaugeZaterdag" class="gauge"></div>
+    <div id="gaugeZondag" class="gauge"></div>
+</div>
 
             <div id="comparison">
                 <h2>Vergelijking <?php echo $previousYear; ?> vs <?php echo $currentYear; ?></h2>
@@ -211,27 +212,61 @@ $zondagDifference = $lastZondagCurrent - $lastZondagPrevious;
                     }
                 });
             }
+            function drawGauges() {
+        var dataTotal = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Totaal', <?php echo $lastTotalCurrent; ?>]
+        ]);
 
-            function createGauge(elementId, value, maxValue, label) {
-                GaugeChart.gaugeChart(document.getElementById(elementId), 300, {
-                    hasNeedle: true,
-                    needleColor: 'gray',
-                    needleUpdateSpeed: 1000,
-                    arcColors: ['rgb(44, 151, 222)', 'lightgray'],
-                    arcDelimiters: [value / maxValue * 100],
-                    rangeLabel: ['0', maxValue.toString()],
-                    centralLabel: label,
-                });
-            }
+        var dataZaterdag = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Zaterdag', <?php echo $lastZaterdagCurrent; ?>]
+        ]);
 
-            createChart('myChartPrevious', <?php echo json_encode($dataPreviousYear['dates']); ?>, <?php echo json_encode($dataPreviousYear['zaterdag']); ?>, <?php echo json_encode($dataPreviousYear['zondag']); ?>, <?php echo json_encode($dataPreviousYear['totaal']); ?>);
-            createChart('myChartCurrent', <?php echo json_encode($dataCurrentYear['dates']); ?>, <?php echo json_encode($dataCurrentYear['zaterdag']); ?>, <?php echo json_encode($dataCurrentYear['zondag']); ?>, <?php echo json_encode($dataCurrentYear['totaal']); ?>);
-            createDifferenceChart('myChartDifference', <?php echo json_encode($diffDates); ?>, <?php echo json_encode($diffZaterdag); ?>, <?php echo json_encode($diffZondag); ?>, <?php echo json_encode($diffTotaal); ?>);
+        var dataZondag = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Zondag', <?php echo $lastZondagCurrent; ?>]
+        ]);
 
-            createGauge('gaugeTotal', <?php echo $lastTotalCurrent; ?>, 1476, 'Totaal: <?php echo $lastTotalCurrent; ?> (<?php echo $totalDifference >= 0 ? "+$totalDifference" : $totalDifference; ?>)');
-            createGauge('gaugeZaterdag', <?php echo $lastZaterdagCurrent; ?>, 738, 'Zaterdag: <?php echo $lastZaterdagCurrent; ?> (<?php echo $zaterdagDifference >= 0 ? "+$zaterdagDifference" : $zaterdagDifference; ?>)');
-            createGauge('gaugeZondag', <?php echo $lastZondagCurrent; ?>, 738, 'Zondag: <?php echo $lastZondagCurrent; ?> (<?php echo $zondagDifference >= 0 ? "+$zondagDifference" : $zondagDifference; ?>)');
-            </script>
+        var options = {
+            width: 300, height: 300,
+            redFrom: 0, redTo: 300,
+            yellowFrom: 300, yellowTo: 600,
+            greenFrom: 600, greenTo: 1476,
+            minorTicks: 5,
+            max: 1476
+        };
+
+        var optionsZaterdag = {
+            width: 300, height: 300,
+            redFrom: 0, redTo: 150,
+            yellowFrom: 150, yellowTo: 300,
+            greenFrom: 300, greenTo: 738,
+            minorTicks: 5,
+            max: 738
+        };
+
+        var chart = new google.visualization.Gauge(document.getElementById('gaugeTotal'));
+        var chartZaterdag = new google.visualization.Gauge(document.getElementById('gaugeZaterdag'));
+        var chartZondag = new google.visualization.Gauge(document.getElementById('gaugeZondag'));
+
+        chart.draw(dataTotal, options);
+        chartZaterdag.draw(dataZaterdag, optionsZaterdag);
+        chartZondag.draw(dataZondag, optionsZaterdag);
+
+        // Add labels below the gauges
+        addLabel('gaugeTotal', 'Totaal: <?php echo $lastTotalCurrent; ?> (<?php echo $totalDifference >= 0 ? "+$totalDifference" : $totalDifference; ?>)');
+        addLabel('gaugeZaterdag', 'Zaterdag: <?php echo $lastZaterdagCurrent; ?> (<?php echo $zaterdagDifference >= 0 ? "+$zaterdagDifference" : $zaterdagDifference; ?>)');
+        addLabel('gaugeZondag', 'Zondag: <?php echo $lastZondagCurrent; ?> (<?php echo $zondagDifference >= 0 ? "+$zondagDifference" : $zondagDifference; ?>)');
+    }
+
+    function addLabel(elementId, text) {
+        var label = document.createElement('div');
+        label.className = 'gauge-label';
+        label.textContent = text;
+        document.getElementById(elementId).appendChild(label);
+    }
+    </script>
         </div>
     </div>
 </body>
