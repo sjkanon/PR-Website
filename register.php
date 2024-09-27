@@ -1,26 +1,24 @@
 <?php
 session_start();
-require 'db.php'; // Zorg ervoor dat je de db.php bestande hebt
+require 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $gebruikersnaam = $_POST['gebruikersnaam'];
     $wachtwoord = $_POST['wachtwoord'];
-    $gehashed_wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT); // Hash het wachtwoord
+    $gehashed_wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
 
-    // Controleer of de gebruikersnaam al bestaat
     $stmt = $pdo->prepare("SELECT * FROM gebruikers WHERE gebruikersnaam = ?");
     $stmt->execute([$gebruikersnaam]);
+
     if ($stmt->rowCount() > 0) {
-        echo "Deze gebruikersnaam is al in gebruik.";
+        $error = "Deze gebruikersnaam is al in gebruik.";
     } else {
-        // Voeg de nieuwe gebruiker toe aan de database
         $stmt = $pdo->prepare("INSERT INTO gebruikers (gebruikersnaam, wachtwoord) VALUES (?, ?)");
         if ($stmt->execute([$gebruikersnaam, $gehashed_wachtwoord])) {
-            echo "Registratie succesvol! Je kunt nu inloggen.";
-            header("Location: login.php"); // Redirect naar login pagina
+            header("Location: login.php");
             exit();
         } else {
-            echo "Er is een fout opgetreden tijdens de registratie.";
+            $error = "Er is een fout opgetreden tijdens de registratie.";
         }
     }
 }
@@ -32,17 +30,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registreren</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Registreren</h2>
-        <form action="register.php" method="POST">
-            <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
-            <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
-            <button type="submit">Registreren</button>
-        </form>
-        <p><a href="login.php">Al geregistreerd? Inloggen</a></p>
+    <div class="form-container">
+        <div class="form-box">
+            <h2>Registreren</h2>
+            <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
+            <form action="register.php" method="POST">
+                <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
+                <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
+                <button type="submit">Registreren</button>
+            </form>
+            <p>Al een account? <a href="login.php">Inloggen</a></p>
+        </div>
     </div>
 </body>
 </html>

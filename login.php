@@ -1,27 +1,24 @@
 <?php
 session_start();
-require 'db.php'; // Zorg ervoor dat je de db.php bestande hebt
+require 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $gebruikersnaam = $_POST['gebruikersnaam'];
     $wachtwoord = $_POST['wachtwoord'];
 
-    // Controleer of gebruikersnaam en wachtwoord zijn ingevoerd
     if (empty($gebruikersnaam) || empty($wachtwoord)) {
-        echo "Vul alstublieft beide velden in.";
+        $error = "Vul alstublieft beide velden in.";
     } else {
-        // Verkrijg de gegevens van de gebruiker
         $stmt = $pdo->prepare("SELECT * FROM gebruikers WHERE gebruikersnaam = ?");
         $stmt->execute([$gebruikersnaam]);
         $gebruiker = $stmt->fetch();
 
-        // Controleer of de gebruiker bestaat en het wachtwoord klopt
         if ($gebruiker && password_verify($wachtwoord, $gebruiker['wachtwoord'])) {
             $_SESSION['gebruikersnaam'] = $gebruikersnaam;
-            header("Location: index.php"); // Verwijs naar de homepage
+            header("Location: index.php");
             exit();
         } else {
-            echo "Ongeldige gebruikersnaam of wachtwoord.";
+            $error = "Ongeldige gebruikersnaam of wachtwoord.";
         }
     }
 }
@@ -33,17 +30,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inloggen</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Inloggen</h2>
-        <form action="login.php" method="POST">
-            <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
-            <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
-            <button type="submit">Inloggen</button>
-        </form>
-        <p><a href="register.php">Registreren</a></p>
+    <div class="form-container">
+        <div class="form-box">
+            <h2>Inloggen</h2>
+            <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
+            <form action="login.php" method="POST">
+                <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
+                <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
+                <button type="submit">Inloggen</button>
+            </form>
+            <p>Nog geen account? <a href="register.php">Registreren</a></p>
+        </div>
     </div>
 </body>
 </html>
