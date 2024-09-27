@@ -106,10 +106,6 @@ for ($i = 0; $i < $maxDays; $i++) {
         <!-- Content -->
         <div class="content">
             <h1>Kaartentellen 2023 vs 2024 Vergelijking</h1>
-            
-            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
-                <p>Je bent ingelogd als <?php echo $_SESSION['gebruikersnaam']; ?>.</p>
-            <?php endif; ?>
 
             <div id="graph2023" class="chart-container">
                 <h2>Kaartentellen 2023</h2>
