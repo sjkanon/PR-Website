@@ -1,16 +1,8 @@
 <?php
-$servername = "localhost";
-$username = "your_username";
-$password = "your_password";
-$dbname = "your_database";
+// Include the database connection file
+require_once 'db.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// The connection is now available as $conn
 
 $sql = "SELECT datum, zaterdag, zondag, totaal FROM kaartentellen_2023 ORDER BY datum";
 $result = $conn->query($sql);
