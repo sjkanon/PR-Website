@@ -44,6 +44,17 @@ $conn->close();
 $lastTotal2023 = end($totaal2023);
 $lastTotal2024 = end($totaal2024);
 $totalDifference = $lastTotal2024 - $lastTotal2023;
+
+// Calculate the difference for each day
+$diffDates = [];
+$diffTotals = [];
+$maxDays = max(count($dates2023), count($dates2024));
+for ($i = 0; $i < $maxDays; $i++) {
+    $diffDates[] = isset($dates2024[$i]) ? $dates2024[$i] : $dates2023[$i];
+    $total2024 = isset($totaal2024[$i]) ? $totaal2024[$i] : 0;
+    $total2023 = isset($totaal2023[$i]) ? $totaal2023[$i] : 0;
+    $diffTotals[] = $total2024 - $total2023;
+}
 ?>
 
 <!DOCTYPE html>
@@ -52,27 +63,8 @@ $totalDifference = $lastTotal2024 - $lastTotal2023;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kaartentellen 2023 vs 2024 Vergelijking</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/kaarten.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .container {
-            display: flex;
-        }
-        .menu {
-            width: 200px;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        .content {
-            flex-grow: 1;
-            padding: 20px;
-        }
-        .chart-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
-        }
-    </style>
 </head>
 <body>
     <!-- Navigatiebalk -->
@@ -106,6 +98,7 @@ $totalDifference = $lastTotal2024 - $lastTotal2023;
             <ul>
                 <li><a href="#graph2023">Grafiek 2023</a></li>
                 <li><a href="#graph2024">Grafiek 2024</a></li>
+                <li><a href="#graphDifference">Verschil Grafiek</a></li>
                 <li><a href="#comparison">Vergelijking</a></li>
             </ul>
         </div>
@@ -114,7 +107,10 @@ $totalDifference = $lastTotal2024 - $lastTotal2023;
         <div class="content">
             <h1>Kaartentellen 2023 vs 2024 Vergelijking</h1>
             
-           
+            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
+                <p>Je bent ingelogd als <?php echo $_SESSION['gebruikersnaam']; ?>.</p>
+            <?php endif; ?>
+
             <div id="graph2023" class="chart-container">
                 <h2>Kaartentellen 2023</h2>
                 <canvas id="myChart2023"></canvas>
@@ -123,6 +119,11 @@ $totalDifference = $lastTotal2024 - $lastTotal2023;
             <div id="graph2024" class="chart-container">
                 <h2>Kaartentellen 2024</h2>
                 <canvas id="myChart2024"></canvas>
+            </div>
+
+            <div id="graphDifference" class="chart-container">
+                <h2>Verschil 2024 - 2023</h2>
+                <canvas id="myChartDifference"></canvas>
             </div>
 
             <div id="comparison">
@@ -167,8 +168,34 @@ $totalDifference = $lastTotal2024 - $lastTotal2023;
                 });
             }
 
+            function createDifferenceChart(canvasId, labels, difference) {
+                var ctx = document.getElementById(canvasId).getContext('2d');
+                return new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Verschil (2024 - 2023)',
+                            data: difference,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgb(75, 192, 192)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
             createChart('myChart2023', <?php echo json_encode($dates2023); ?>, <?php echo json_encode($zaterdag2023); ?>, <?php echo json_encode($zondag2023); ?>, <?php echo json_encode($totaal2023); ?>);
             createChart('myChart2024', <?php echo json_encode($dates2024); ?>, <?php echo json_encode($zaterdag2024); ?>, <?php echo json_encode($zondag2024); ?>, <?php echo json_encode($totaal2024); ?>);
+            createDifferenceChart('myChartDifference', <?php echo json_encode($diffDates); ?>, <?php echo json_encode($diffTotals); ?>);
             </script>
         </div>
     </div>
