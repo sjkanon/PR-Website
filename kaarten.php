@@ -133,10 +133,142 @@ $zondagDifference = $lastZondagCurrent - $lastZondagPrevious;
                 <p>Zondag <?php echo $previousYear; ?>: <?php echo $lastZondagPrevious; ?>, Zondag <?php echo $currentYear; ?>: <?php echo $lastZondagCurrent; ?>, Verschil: <?php echo $zondagDifference; ?></p>
             </div>
 
-            <script>
-            // JavaScript for charts and gauges (same as before)
-            // ... (include all the JavaScript code here)
-            </script>
+            <!-- Add this script section just before the closing </body> tag in your kaarten.php file -->
+
+<script>
+function createChart(canvasId, labels, zaterdag, zondag, totaal) {
+    var ctx = document.getElementById(canvasId).getContext('2d');
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Zaterdag',
+                data: zaterdag,
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }, {
+                label: 'Zondag',
+                data: zondag,
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            }, {
+                label: 'Totaal',
+                data: totaal,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function createDifferenceChart(canvasId, labels, zaterdag, zondag, totaal) {
+    var ctx = document.getElementById(canvasId).getContext('2d');
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Zaterdag Verschil',
+                data: zaterdag,
+                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                borderColor: 'rgb(255, 99, 132)',
+                borderWidth: 1
+            }, {
+                label: 'Zondag Verschil',
+                data: zondag,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgb(54, 162, 235)',
+                borderWidth: 1
+            }, {
+                label: 'Totaal Verschil',
+                data: totaal,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgb(75, 192, 192)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+google.charts.load('current', {'packages':['gauge']});
+google.charts.setOnLoadCallback(drawGauges);
+
+function drawGauges() {
+    var dataTotal = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Totaal', <?php echo $lastTotalCurrent; ?>]
+    ]);
+
+    var dataZaterdag = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Zaterdag', <?php echo $lastZaterdagCurrent; ?>]
+    ]);
+
+    var dataZondag = google.visualization.arrayToDataTable([
+        ['Label', 'Value'],
+        ['Zondag', <?php echo $lastZondagCurrent; ?>]
+    ]);
+
+    var options = {
+        width: 300, height: 300,
+        redFrom: 0, redTo: 300,
+        yellowFrom: 300, yellowTo: 600,
+        greenFrom: 600, greenTo: 1476,
+        minorTicks: 5,
+        max: 1476
+    };
+
+    var optionsZaterdag = {
+        width: 300, height: 300,
+        redFrom: 0, redTo: 150,
+        yellowFrom: 150, yellowTo: 300,
+        greenFrom: 300, greenTo: 738,
+        minorTicks: 5,
+        max: 738
+    };
+
+    var chart = new google.visualization.Gauge(document.getElementById('gaugeTotal'));
+    var chartZaterdag = new google.visualization.Gauge(document.getElementById('gaugeZaterdag'));
+    var chartZondag = new google.visualization.Gauge(document.getElementById('gaugeZondag'));
+
+    chart.draw(dataTotal, options);
+    chartZaterdag.draw(dataZaterdag, optionsZaterdag);
+    chartZondag.draw(dataZondag, optionsZaterdag);
+
+    addLabel('gaugeTotal', 'Totaal: <?php echo $lastTotalCurrent; ?> (<?php echo $totalDifference >= 0 ? "+$totalDifference" : $totalDifference; ?>)');
+    addLabel('gaugeZaterdag', 'Zaterdag: <?php echo $lastZaterdagCurrent; ?> (<?php echo $zaterdagDifference >= 0 ? "+$zaterdagDifference" : $zaterdagDifference; ?>)');
+    addLabel('gaugeZondag', 'Zondag: <?php echo $lastZondagCurrent; ?> (<?php echo $zondagDifference >= 0 ? "+$zondagDifference" : $zondagDifference; ?>)');
+}
+
+function addLabel(elementId, text) {
+    var label = document.createElement('div');
+    label.className = 'gauge-label';
+    label.textContent = text;
+    document.getElementById(elementId).appendChild(label);
+}
+
+// Create charts
+createChart('myChartPrevious', <?php echo json_encode($dataPreviousYear['dates']); ?>, <?php echo json_encode($dataPreviousYear['zaterdag']); ?>, <?php echo json_encode($dataPreviousYear['zondag']); ?>, <?php echo json_encode($dataPreviousYear['totaal']); ?>);
+createChart('myChartCurrent', <?php echo json_encode($dataCurrentYear['dates']); ?>, <?php echo json_encode($dataCurrentYear['zaterdag']); ?>, <?php echo json_encode($dataCurrentYear['zondag']); ?>, <?php echo json_encode($dataCurrentYear['totaal']); ?>);
+createDifferenceChart('myChartDifference', <?php echo json_encode($diffDates); ?>, <?php echo json_encode($diffZaterdag); ?>, <?php echo json_encode($diffZondag); ?>, <?php echo json_encode($diffTotaal); ?>);
+</script>
         </div>
     </div>
 </body>
