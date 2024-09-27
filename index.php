@@ -20,10 +20,13 @@ session_start();
             <li><a href="index.php">Home</a></li>
             <li><a href="about.html">Over Ons</a></li>
             <li><a href="contact.html">Contact</a></li>
-
+            
             <?php if (isset($_SESSION['gebruikersnaam'])): ?>
                 <li><a href="kaarten.php">Kaarten</a></li>
                 <li><a href="profile.php">Profiel</a></li>
+                <?php if ($_SESSION['rol'] === 'admin'): ?> <!-- Rolverificatie voor admin -->
+                    <li><a href="admin.php">Admin</a></li>
+                <?php endif; ?>
                 <li><a href="logout.php">Uitloggen</a></li>
             <?php else: ?>
                 <li><a href="register.php">Registreren</a></li>
