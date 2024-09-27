@@ -95,3 +95,44 @@ th, td {
 th {
     background-color: #f2f2f2;
 }
+/* Sidebar styling */
+.sidebar {
+    width: 200px; /* Breedte van de sidebar */
+    background-color: #f7f7f7; /* Achtergrondkleur van de sidebar */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    float: left; /* Zorg ervoor dat de sidebar aan de linkerkant blijft */
+    margin-right: 20px; /* Ruimte tussen sidebar en content */
+}
+
+.sidebar h2 {
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+}
+
+.sidebar ul li {
+    margin: 10px 0; /* Ruimte tussen menu-items */
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #333;
+    padding: 8px;
+    display: block; /* Zorg ervoor dat de links de volledige breedte van het menu-item vullen */
+    border-radius: 5px; /* Hoekjes afronden */
+    transition: background-color 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+    background-color: #e0e0e0; /* Achtergrondkleur bij hover */
+}
+
+/* Hoofdcontent */
+.main-content {
+    margin-left: 220px; /* Ruimte laten voor de sidebar */
+    padding: 20px; /* Padding voor de hoofdinhoud */
+}

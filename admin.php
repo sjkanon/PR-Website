@@ -23,7 +23,7 @@ try {
 
 // Haal het totaal aantal gebruikers op
 try {
-    $stmt = $pdo->query("SELECT COUNT(*) FROM users");
+    $stmt = $pdo->query("SELECT COUNT(*) FROM gebruikers");
     $totaalGebruikers = $stmt->fetchColumn();
 } catch (Exception $e) {
     $totaalGebruikers = 0; // Foutafhandeling
@@ -44,7 +44,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <!-- Navigatiebalk -->
@@ -65,24 +65,31 @@ try {
 
     <!-- Admin Dashboard Content -->
     <div class="admin-container">
-        <h1>Admin Dashboard</h1>
-        <p>Welkom, <?php echo $_SESSION['gebruikersnaam']; ?>!</p>
-        
-        <h2>Beheer Gebruikers</h2>
-        <ul>
-            <li><a href="new_user.php">Nieuwe Gebruiker Toevoegen</a></li>
-            <li><a href="gebruikers.php">Bekijk Alle Gebruikers</a></li>
-        </ul>
-        
-        <h2>Statistieken</h2>
-        <div class="stats">
-            <div class="stat-box">
-                <h3>Totaal Aantal Gebruikers</h3>
-                <p><?php echo $totaalGebruikers; ?></p>
-            </div>
-            <div class="stat-box">
-                <h3>Totaal Aantal Boekingen</h3>
-                <p><?php echo $totaalBoekingen; ?></p>
+        <div class="sidebar">
+            <h2>Admin Menu</h2>
+            <ul>
+                <li><a href="new_user.php">Nieuwe Gebruiker Toevoegen</a></li>
+                <li><a href="view_users.php">Bekijk Alle Gebruikers</a></li>
+                <li><a href="view_bookings.php">Bekijk Boekingen</a></li>
+                <li><a href="manage_roles.php">Beheer Rollen</a></li>
+                <li><a href="reports.php">Rapporten</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <h1>Admin Dashboard</h1>
+            <p>Welkom, <?php echo $_SESSION['gebruikersnaam']; ?>!</p>
+            
+            <h2>Statistieken</h2>
+            <div class="stats">
+                <div class="stat-box">
+                    <h3>Totaal Aantal Gebruikers</h3>
+                    <p><?php echo $totaalGebruikers; ?></p>
+                </div>
+                <div class="stat-box">
+                    <h3>Totaal Aantal Boekingen</h3>
+                    <p><?php echo $totaalBoekingen; ?></p>
+                </div>
             </div>
         </div>
     </div>
