@@ -25,9 +25,6 @@ try {
 $stmt = $pdo->query("SELECT COUNT(*) FROM users");
 $totaalGebruikers = $stmt->fetchColumn();
 
-// Haal het totaal aantal boekingen op
-$stmt = $pdo->query("SELECT COUNT(*) FROM bookings");
-$totaalBoekingen = $stmt->fetchColumn();
 ?>
 
 <!DOCTYPE html>
@@ -71,10 +68,6 @@ $totaalBoekingen = $stmt->fetchColumn();
             <div class="stat-box">
                 <h3>Totaal Aantal Gebruikers</h3>
                 <p><?php echo $totaalGebruikers; ?></p> <!-- Dynamisch totaal aantal gebruikers -->
-            </div>
-            <div class="stat-box">
-                <h3>Totaal Aantal Boekingen</h3>
-                <p><?php echo $totaalBoekingen; ?></p> <!-- Dynamisch totaal aantal boekingen -->
             </div>
         </div>
     </div>
