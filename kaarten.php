@@ -2,25 +2,48 @@
 session_start();
 require_once 'db.php';
 
-// Fetch data for the graph
-$sql = "SELECT datum, zaterdag, zondag, totaal FROM kaartentellen_2023 ORDER BY datum";
-$result = $conn->query($sql);
+// Fetch data for 2023
+$sql2023 = "SELECT datum, zaterdag, zondag, totaal FROM kaartentellen_2023 ORDER BY datum";
+$result2023 = $conn->query($sql2023);
 
-$dates = [];
-$zaterdag = [];
-$zondag = [];
-$totaal = [];
+$dates2023 = [];
+$zaterdag2023 = [];
+$zondag2023 = [];
+$totaal2023 = [];
 
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $dates[] = $row["datum"];
-        $zaterdag[] = $row["zaterdag"];
-        $zondag[] = $row["zondag"];
-        $totaal[] = $row["totaal"];
+if ($result2023->num_rows > 0) {
+    while($row = $result2023->fetch_assoc()) {
+        $dates2023[] = $row["datum"];
+        $zaterdag2023[] = $row["zaterdag"];
+        $zondag2023[] = $row["zondag"];
+        $totaal2023[] = $row["totaal"];
+    }
+}
+
+// Fetch data for 2024
+$sql2024 = "SELECT datum, zaterdag, zondag, totaal FROM kaartentellen_2024 ORDER BY datum";
+$result2024 = $conn->query($sql2024);
+
+$dates2024 = [];
+$zaterdag2024 = [];
+$zondag2024 = [];
+$totaal2024 = [];
+
+if ($result2024->num_rows > 0) {
+    while($row = $result2024->fetch_assoc()) {
+        $dates2024[] = $row["datum"];
+        $zaterdag2024[] = $row["zaterdag"];
+        $zondag2024[] = $row["zondag"];
+        $totaal2024[] = $row["totaal"];
     }
 }
 
 $conn->close();
+
+// Calculate the difference between 2024 and 2023 totals
+$lastTotal2023 = end($totaal2023);
+$lastTotal2024 = end($totaal2024);
+$totalDifference = $lastTotal2024 - $lastTotal2023;
 ?>
 
 <!DOCTYPE html>
@@ -28,9 +51,28 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaartentellen 2023 Grafiek</title>
+    <title>Kaartentellen 2023 vs 2024 Vergelijking</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .container {
+            display: flex;
+        }
+        .menu {
+            width: 200px;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigatiebalk -->
@@ -57,51 +99,78 @@ $conn->close();
         </ul>
     </nav>
 
-    <!-- Content -->
-    <div class="content">
-        <h1>Kaartentellen 2023 Grafiek</h1>
-        <p>Hieronder vindt u een grafiek van de kaartverkoop voor 2023.</p>
-        
-        <?php if (isset($_SESSION['gebruikersnaam'])): ?>
-            <p>Je bent ingelogd als <?php echo $_SESSION['gebruikersnaam']; ?>.</p>
-        <?php endif; ?>
+    <div class="container">
+        <!-- Left Menu -->
+        <div class="menu">
+            <h3>Menu</h3>
+            <ul>
+                <li><a href="#graph2023">Grafiek 2023</a></li>
+                <li><a href="#graph2024">Grafiek 2024</a></li>
+                <li><a href="#comparison">Vergelijking</a></li>
+            </ul>
+        </div>
 
-        <!-- Graph canvas -->
-        <canvas id="myChart" style="width:100%; max-width:800px; margin:auto;"></canvas>
+        <!-- Content -->
+        <div class="content">
+            <h1>Kaartentellen 2023 vs 2024 Vergelijking</h1>
+            
+           
+            <div id="graph2023" class="chart-container">
+                <h2>Kaartentellen 2023</h2>
+                <canvas id="myChart2023"></canvas>
+            </div>
 
-        <script>
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: <?php echo json_encode($dates); ?>,
-                datasets: [{
-                    label: 'Zaterdag',
-                    data: <?php echo json_encode($zaterdag); ?>,
-                    borderColor: 'rgb(255, 99, 132)',
-                    tension: 0.1
-                }, {
-                    label: 'Zondag',
-                    data: <?php echo json_encode($zondag); ?>,
-                    borderColor: 'rgb(54, 162, 235)',
-                    tension: 0.1
-                }, {
-                    label: 'Totaal',
-                    data: <?php echo json_encode($totaal); ?>,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            <div id="graph2024" class="chart-container">
+                <h2>Kaartentellen 2024</h2>
+                <canvas id="myChart2024"></canvas>
+            </div>
+
+            <div id="comparison">
+                <h2>Vergelijking 2023 vs 2024</h2>
+                <p>Totaal aantal kaarten 2023: <?php echo $lastTotal2023; ?></p>
+                <p>Totaal aantal kaarten 2024: <?php echo $lastTotal2024; ?></p>
+                <p>Verschil in totaal aantal kaarten: <?php echo $totalDifference; ?></p>
+            </div>
+
+            <script>
+            function createChart(canvasId, labels, zaterdag, zondag, totaal) {
+                var ctx = document.getElementById(canvasId).getContext('2d');
+                return new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Zaterdag',
+                            data: zaterdag,
+                            borderColor: 'rgb(255, 99, 132)',
+                            tension: 0.1
+                        }, {
+                            label: 'Zondag',
+                            data: zondag,
+                            borderColor: 'rgb(54, 162, 235)',
+                            tension: 0.1
+                        }, {
+                            label: 'Totaal',
+                            data: totaal,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
                     }
-                }
+                });
             }
-        });
-        </script>
+
+            createChart('myChart2023', <?php echo json_encode($dates2023); ?>, <?php echo json_encode($zaterdag2023); ?>, <?php echo json_encode($zondag2023); ?>, <?php echo json_encode($totaal2023); ?>);
+            createChart('myChart2024', <?php echo json_encode($dates2024); ?>, <?php echo json_encode($zaterdag2024); ?>, <?php echo json_encode($zondag2024); ?>, <?php echo json_encode($totaal2024); ?>);
+            </script>
+        </div>
     </div>
 </body>
 </html>
