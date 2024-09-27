@@ -54,6 +54,11 @@ body {
     border-radius: 5px;
 }
 
+/* Burger Menu */
+.burger {
+    display: none;
+}
+
 /* Content Styling */
 .content {
     text-align: center;
@@ -70,6 +75,74 @@ body {
     font-size: 18px;
     color: #666;
     margin: 20px 0;
+}
+
+/* Formulier container voor login en registratie */
+.form-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+/* Formulier box */
+.form-box {
+    background-color: #fff;
+    padding: 40px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Formulier titel */
+.form-box h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #333;
+}
+
+/* Inputvelden */
+.form-box input[type="text"], .form-box input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Inlog/Registratie knop */
+.form-box button {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.form-box button:hover {
+    background-color: #575757;
+}
+
+/* Foutmeldingen */
+.error {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* Link styling */
+.form-box a {
+    color: #333;
+    text-decoration: none;
+}
+
+.form-box a:hover {
+    text-decoration: underline;
 }
 
 /* Responsive Design */
@@ -107,17 +180,17 @@ body {
         margin: 5px;
         transition: all 0.3s ease;
     }
-}
 
-/* Mobile Menu Active */
-.burger.active .line1 {
-    transform: rotate(-45deg) translate(-5px, 6px);
-}
+    /* Mobile Menu Active */
+    .burger.active .line1 {
+        transform: rotate(-45deg) translate(-5px, 6px);
+    }
 
-.burger.active .line2 {
-    opacity: 0;
-}
+    .burger.active .line2 {
+        opacity: 0;
+    }
 
-.burger.active .line3 {
-    transform: rotate(45deg) translate(-5px, -6px);
+    .burger.active .line3 {
+        transform: rotate(45deg) translate(-5px, -6px);
+    }
 }
