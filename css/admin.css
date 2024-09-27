@@ -54,55 +54,36 @@ body {
     border-radius: 5px;
 }
 
-/* Admin Styling */
-.admin-container {
+/* Content Styling */
+.content {
     text-align: center;
-    margin: 50px auto;
+    margin-top: 50px;
     padding: 20px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.stats {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 30px;
-}
-
-.stat-box {
-    background-color: #e7e7e7;
-    padding: 20px;
-    border-radius: 5px;
-    width: 30%;
-}
-
-h1, h2, h3 {
+.content h1 {
+    font-size: 36px;
     color: #333;
 }
 
-/* Table Styling (If Needed) */
-table {
-    width: 100%;
-    border-collapse: collapse;
+.content p {
+    font-size: 18px;
+    color: #666;
+    margin: 20px 0;
 }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+/* Admin Styling */
+.admin-container {
+    display: flex; /* Gebruik flexbox voor een betere layout */
+    padding: 20px;
 }
 
-th {
-    background-color: #f2f2f2;
-}
-/* Sidebar styling */
 .sidebar {
     width: 200px; /* Breedte van de sidebar */
     background-color: #f7f7f7; /* Achtergrondkleur van de sidebar */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    float: left; /* Zorg ervoor dat de sidebar aan de linkerkant blijft */
     margin-right: 20px; /* Ruimte tussen sidebar en content */
 }
 
@@ -131,8 +112,91 @@ th {
     background-color: #e0e0e0; /* Achtergrondkleur bij hover */
 }
 
-/* Hoofdcontent */
 .main-content {
-    margin-left: 220px; /* Ruimte laten voor de sidebar */
+    flex-grow: 1; /* Zorg ervoor dat de hoofdinhoud de resterende ruimte gebruikt */
     padding: 20px; /* Padding voor de hoofdinhoud */
+    background-color: white; /* Achtergrondkleur van de hoofdinhoud */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    background-color: #e7e7e7;
+    padding: 20px;
+    border-radius: 5px;
+    width: 30%;
+}
+
+.table-container {
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar .nav-links {
+        flex-direction: column;
+        align-items: center;
+        background-color: #333;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        display: none;
+    }
+
+    .navbar .nav-links li {
+        margin: 10px 0;
+    }
+
+    .navbar.active .nav-links {
+        display: flex;
+    }
+
+    /* Burger Menu */
+    .burger {
+        display: block;
+        cursor: pointer;
+        margin-left: auto;
+    }
+
+    .burger div {
+        width: 25px;
+        height: 3px;
+        background-color: white;
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+
+    /* Mobile Menu Active */
+    .burger.active .line1 {
+        transform: rotate(-45deg) translate(-5px, 6px);
+    }
+
+    .burger.active .line2 {
+        opacity: 0;
+    }
+
+    .burger.active .line3 {
+        transform: rotate(45deg) translate(-5px, -6px);
+    }
 }
