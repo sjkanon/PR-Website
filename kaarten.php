@@ -1,17 +1,6 @@
 <?php
 session_start();
-
-// Database connection
-$servername = "localhost";
-$username = "pr_djm";
-$password = "_7vd3nC37";
-$dbname = "techniekdjm_";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once 'db.php';
 
 // Fetch data for 2023 and 2024
 function fetchData($year) {
@@ -74,71 +63,32 @@ $zondagDifference = $lastZondag2024 - $lastZondag2023;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kaartentellen 2023 vs 2024 Vergelijking</title>
+    <link rel="stylesheet" href="css/kaarten.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gauge-chart@latest/dist/bundle.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            display: flex;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .menu {
-            width: 200px;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-        .content {
-            flex: 1;
-            padding: 20px;
-        }
-        .chart-container {
-            margin-bottom: 30px;
-        }
-        .gauge-container {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 30px;
-        }
-        .gauge {
-            width: 300px;
-            height: 300px;
-        }
-        .navbar {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-        }
-        .navbar a {
-            color: #fff;
-            text-decoration: none;
-            padding: 10px;
-        }
-    </style>
 </head>
 <body>
     <nav class="navbar">
-        <a href="index.php">Home</a>
-        <a href="about.html">Over Ons</a>
-        <a href="contact.html">Contact</a>
-        <?php if (isset($_SESSION['gebruikersnaam'])): ?>
-            <a href="kaarten.php">Kaarten</a>
-            <a href="profile.php">Profiel</a>
-            <?php if ($_SESSION['rol'] === 'admin'): ?>
-                <a href="admin.php">Admin</a>
+        <div class="logo">
+            <a href="index.php">PR Deventer Jeugd Musical</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.php">Home</a></li>
+            <li><a href="about.html">Over Ons</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            
+            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
+                <li><a href="kaarten.php">Kaarten</a></li>
+                <li><a href="profile.php">Profiel</a></li>
+                <?php if ($_SESSION['rol'] === 'admin'): ?>
+                    <li><a href="admin.php">Admin</a></li>
+                <?php endif; ?>
+                <li><a href="logout.php">Uitloggen</a></li>
+            <?php else: ?>
+                <li><a href="register.php">Registreren</a></li>
+                <li><a href="login.php">Inloggen</a></li>
             <?php endif; ?>
-            <a href="logout.php">Uitloggen</a>
-        <?php else: ?>
-            <a href="register.php">Registreren</a>
-            <a href="login.php">Inloggen</a>
-        <?php endif; ?>
+        </ul>
     </nav>
 
     <div class="container">
