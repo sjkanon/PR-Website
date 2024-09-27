@@ -31,12 +31,16 @@ if (!isset($_SESSION['gebruikersnaam']) || $_SESSION['rol'] != 'admin') {
     <div class="admin-container">
         <div class="sidebar">
             <h2>Admin Menu</h2>
-            <a href="admin.php">Dashboard</a>
-            <a href="gebruikers.php">Gebruikers Beheren</a>
-            <a href="voeg_gebruiker_toe.php">Nieuwe Gebruiker</a>
+            <ul>
+                <li><a href="new_user.php">Nieuwe Gebruiker Toevoegen</a></li>
+                <li><a href="view_users.php">Bekijk Alle Gebruikers</a></li>
+                <li><a href="view_bookings.php">Bekijk Boekingen</a></li>
+                <li><a href="manage_roles.php">Beheer Rollen</a></li>
+                <li><a href="reports.php">Rapporten</a></li>
+            </ul>
         </div>
 
-        <div class="content">
+        <div class="main-content">
             <h1>Gebruikersbeheer</h1>
             <table>
                 <thead>
