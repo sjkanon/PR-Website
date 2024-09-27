@@ -1,22 +1,22 @@
 <?php
 session_start();
-require 'config.php';
+include 'db.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $gebruikersnaam = $_POST['gebruikersnaam'];
     $email = $_POST['email'];
-    $wachtwoord = password_hash($_POST['wachtwoord'], PASSWORD_BCRYPT);
-    $rol = 'gebruiker'; // Standaardrol
+    $wachtwoord = password_hash($_POST['wachtwoord'], PASSWORD_DEFAULT);
+    $rol = 'gebruiker'; // Standaard rol
 
     $sql = "INSERT INTO gebruikers (gebruikersnaam, email, wachtwoord, rol) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssss", $gebruikersnaam, $email, $wachtwoord, $rol);
 
     if ($stmt->execute()) {
-        $_SESSION['success'] = "Registratie succesvol!";
         header("Location: login.php");
+        exit();
     } else {
-        $_SESSION['error'] = "Er is iets misgegaan, probeer het opnieuw.";
+        echo "Fout bij registreren: " . $stmt->error;
     }
 }
 ?>
@@ -30,18 +30,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="form-container">
-        <h2>Registreren</h2>
-        <form action="register.php" method="POST">
-            <label for="gebruikersnaam">Gebruikersnaam:</label>
-            <input type="text" name="gebruikersnaam" required>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="index.php">PR Deventer Jeugd Musical</a>
+        </div>
+    </nav>
 
-            <label for="email">E-mail:</label>
-            <input type="email" name="email" required>
-
-            <label for="wachtwoord">Wachtwoord:</label>
-            <input type="password" name="wachtwoord" required>
-
+    <div class="content">
+        <h1>Registreren</h1>
+        <form method="POST" action="">
+            <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
             <button type="submit">Registreren</button>
         </form>
     </div>

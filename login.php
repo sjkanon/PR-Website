@@ -1,12 +1,12 @@
 <?php
 session_start();
-require 'config.php';
+include 'db.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $gebruikersnaam = $_POST['gebruikersnaam'];
     $wachtwoord = $_POST['wachtwoord'];
 
-    $sql = "SELECT id, gebruikersnaam, wachtwoord, rol FROM gebruikers WHERE gebruikersnaam = ?";
+    $sql = "SELECT gebruikersnaam, wachtwoord, rol FROM gebruikers WHERE gebruikersnaam = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $gebruikersnaam);
     $stmt->execute();
@@ -16,12 +16,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
         if (password_verify($wachtwoord, $row['wachtwoord'])) {
             $_SESSION['gebruikersnaam'] = $row['gebruikersnaam'];
-            $_SESSION['rol'] = $row['rol'];
+            $_SESSION['rol'] = $row['rol']; // Rol opslaan in de sessie
+
             if ($_SESSION['rol'] == 'admin') {
                 header("Location: admin.php");
             } else {
                 header("Location: index.php");
             }
+            exit();
         } else {
             echo "Ongeldige inloggegevens.";
         }
@@ -40,15 +42,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="form-container">
-        <h2>Inloggen</h2>
-        <form action="login.php" method="POST">
-            <label for="gebruikersnaam">Gebruikersnaam:</label>
-            <input type="text" name="gebruikersnaam" required>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="index.php">PR Deventer Jeugd Musical</a>
+        </div>
+    </nav>
 
-            <label for="wachtwoord">Wachtwoord:</label>
-            <input type="password" name="wachtwoord" required>
-
+    <div class="content">
+        <h1>Inloggen</h1>
+        <form method="POST" action="">
+            <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
+            <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
             <button type="submit">Inloggen</button>
         </form>
     </div>

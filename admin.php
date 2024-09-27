@@ -1,15 +1,12 @@
 <?php
 session_start();
-require 'config.php';
+include 'db.php';
 
+// Controleer of de gebruiker is ingelogd en adminrechten heeft
 if (!isset($_SESSION['gebruikersnaam']) || $_SESSION['rol'] != 'admin') {
     header("Location: login.php");
     exit();
 }
-
-// Optioneel: Haal gebruikersinformatie op om in het dashboard weer te geven
-$sql = "SELECT id, gebruikersnaam, email, rol FROM gebruikers";
-$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
@@ -21,23 +18,33 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Navigatiebalk -->
     <nav class="navbar">
         <div class="logo">
             <a href="index.php">PR Deventer Jeugd Musical</a>
         </div>
         <ul class="nav-links">
             <li><a href="index.php">Home</a></li>
+            <li><a href="about.html">Over Ons</a></li>
+            <li><a href="contact.html">Contact</a></li>
             <li><a href="logout.php">Uitloggen</a></li>
         </ul>
     </nav>
 
-    <!-- Admin Dashboard Content -->
     <div class="admin-container">
         <h1>Welkom, Admin</h1>
-        <p>Beheer gebruikers en statistieken.</p>
+        <p>Beheer de gebruikers en bekijk statistieken.</p>
 
-        <!-- Gebruikersbeheer -->
+        <div class="stats">
+            <div class="stat-box">
+                <h3>Aantal Gebruikers</h3>
+                <p>120</p>
+            </div>
+            <div class="stat-box">
+                <h3>Nieuwe Registraties</h3>
+                <p>10 deze week</p>
+            </div>
+        </div>
+
         <div class="table-container">
             <h2>Gebruikersbeheer</h2>
             <table>
@@ -51,15 +58,25 @@ $result = $conn->query($sql);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?php echo $row['id']; ?></td>
-                        <td><?php echo $row['gebruikersnaam']; ?></td>
-                        <td><?php echo $row['email']; ?></td>
-                        <td><?php echo $row['rol']; ?></td>
-                        <td><a href="#">Bewerk</a> | <a href="#">Verwijder</a></td>
-                    </tr>
-                    <?php endwhile; ?>
+                    <?php
+                    $sql = "SELECT * FROM gebruikers";
+                    $result = $conn->query($sql);
+
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>
+                                <td>{$row['id']}</td>
+                                <td>{$row['gebruikersnaam']}</td>
+                                <td>{$row['email']}</td>
+                                <td>{$row['rol']}</td>
+                                <td>
+                                    <a href='#'>Bewerk</a> | 
+                                    <a href='#'>Verwijder</a>
+                                </td>
+                            </tr>";
+                        }
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
