@@ -1,25 +1,32 @@
 <?php
 session_start();
-require 'db.php';
+require 'config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $gebruikersnaam = $_POST['gebruikersnaam'];
     $wachtwoord = $_POST['wachtwoord'];
 
-    if (empty($gebruikersnaam) || empty($wachtwoord)) {
-        $error = "Vul alstublieft beide velden in.";
-    } else {
-        $stmt = $pdo->prepare("SELECT * FROM gebruikers WHERE gebruikersnaam = ?");
-        $stmt->execute([$gebruikersnaam]);
-        $gebruiker = $stmt->fetch();
+    $sql = "SELECT id, gebruikersnaam, wachtwoord, rol FROM gebruikers WHERE gebruikersnaam = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $gebruikersnaam);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-        if ($gebruiker && password_verify($wachtwoord, $gebruiker['wachtwoord'])) {
-            $_SESSION['gebruikersnaam'] = $gebruikersnaam;
-            header("Location: index.php");
-            exit();
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        if (password_verify($wachtwoord, $row['wachtwoord'])) {
+            $_SESSION['gebruikersnaam'] = $row['gebruikersnaam'];
+            $_SESSION['rol'] = $row['rol'];
+            if ($_SESSION['rol'] == 'admin') {
+                header("Location: admin.php");
+            } else {
+                header("Location: index.php");
+            }
         } else {
-            $error = "Ongeldige gebruikersnaam of wachtwoord.";
+            echo "Ongeldige inloggegevens.";
         }
+    } else {
+        echo "Gebruiker niet gevonden.";
     }
 }
 ?>
@@ -33,38 +40,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
-<nav class="navbar">
-        <div class="logo">
-            <a href="index.php">PR Deventer Jeugd Musical</a>
-        </div>
-        <ul class="nav-links">
-            <li><a href="index.php">Home</a></li>
-            <li><a href="about.html">Over Ons</a></li>
-            <li><a href="contact.html">Contact</a></li>
-
-            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
-                <li><a href="kaarten.php">Kaarten</a></li>
-                <li><a href="profile.php">Profiel</a></li>
-                <li><a href="logout.php">Uitloggen</a></li>
-            <?php else: ?>
-                <li><a href="register.php">Registreren</a></li>
-                <li><a href="login.php">Inloggen</a></li>
-            <?php endif; ?>
-        </ul>
-    </nav>
-
     <div class="form-container">
-        <div class="form-box modern">
-            <h2>Inloggen</h2>
-            <form action="login_handler.php" method="POST">
-                <input type="text" name="username" placeholder="Gebruikersnaam" required>
-                <input type="password" name="password" placeholder="Wachtwoord" required>
-                <button type="submit">Log in</button>
-            </form>
-            <p>Nog geen account? <a href="register.php">Registreer hier</a></p>
-        </div>
-    </div>
+        <h2>Inloggen</h2>
+        <form action="login.php" method="POST">
+            <label for="gebruikersnaam">Gebruikersnaam:</label>
+            <input type="text" name="gebruikersnaam" required>
 
+            <label for="wachtwoord">Wachtwoord:</label>
+            <input type="password" name="wachtwoord" required>
+
+            <button type="submit">Inloggen</button>
+        </form>
+    </div>
 </body>
 </html>

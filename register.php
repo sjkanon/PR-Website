@@ -1,25 +1,22 @@
 <?php
 session_start();
-require 'db.php';
+require 'config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $gebruikersnaam = $_POST['gebruikersnaam'];
-    $wachtwoord = $_POST['wachtwoord'];
-    $gehashed_wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
+    $email = $_POST['email'];
+    $wachtwoord = password_hash($_POST['wachtwoord'], PASSWORD_BCRYPT);
+    $rol = 'gebruiker'; // Standaardrol
 
-    $stmt = $pdo->prepare("SELECT * FROM gebruikers WHERE gebruikersnaam = ?");
-    $stmt->execute([$gebruikersnaam]);
+    $sql = "INSERT INTO gebruikers (gebruikersnaam, email, wachtwoord, rol) VALUES (?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssss", $gebruikersnaam, $email, $wachtwoord, $rol);
 
-    if ($stmt->rowCount() > 0) {
-        $error = "Deze gebruikersnaam is al in gebruik.";
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Registratie succesvol!";
+        header("Location: login.php");
     } else {
-        $stmt = $pdo->prepare("INSERT INTO gebruikers (gebruikersnaam, wachtwoord) VALUES (?, ?)");
-        if ($stmt->execute([$gebruikersnaam, $gehashed_wachtwoord])) {
-            header("Location: login.php");
-            exit();
-        } else {
-            $error = "Er is een fout opgetreden tijdens de registratie.";
-        }
+        $_SESSION['error'] = "Er is iets misgegaan, probeer het opnieuw.";
     }
 }
 ?>
@@ -30,43 +27,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registreren</title>
-    <link rel="stylesheet" href="css\styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
-<nav class="navbar">
-        <div class="logo">
-            <a href="index.php">PR Deventer Jeugd Musical</a>
-        </div>
-        <ul class="nav-links">
-            <li><a href="index.php">Home</a></li>
-            <li><a href="about.html">Over Ons</a></li>
-            <li><a href="contact.html">Contact</a></li>
-
-            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
-                <li><a href="kaarten.php">Kaarten</a></li>
-                <li><a href="profile.php">Profiel</a></li>
-                <li><a href="logout.php">Uitloggen</a></li>
-            <?php else: ?>
-                <li><a href="register.php">Registreren</a></li>
-                <li><a href="login.php">Inloggen</a></li>
-            <?php endif; ?>
-        </ul>
-    </nav>
-
     <div class="form-container">
-        <div class="form-box modern">
-            <h2>Registreren</h2>
-            <form action="register_handler.php" method="POST">
-                <input type="text" name="username" placeholder="Gebruikersnaam" required>
-                <input type="email" name="email" placeholder="E-mail" required>
-                <input type="password" name="password" placeholder="Wachtwoord" required>
-                <input type="password" name="confirm_password" placeholder="Bevestig wachtwoord" required>
-                <button type="submit">Registreer</button>
-            </form>
-            <p>Al een account? <a href="login.php">Log hier in</a></p>
-        </div>
-    </div>
+        <h2>Registreren</h2>
+        <form action="register.php" method="POST">
+            <label for="gebruikersnaam">Gebruikersnaam:</label>
+            <input type="text" name="gebruikersnaam" required>
 
+            <label for="email">E-mail:</label>
+            <input type="email" name="email" required>
+
+            <label for="wachtwoord">Wachtwoord:</label>
+            <input type="password" name="wachtwoord" required>
+
+            <button type="submit">Registreren</button>
+        </form>
+    </div>
 </body>
 </html>
