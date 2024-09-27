@@ -8,7 +8,7 @@ if (!isset($_SESSION['gebruikersnaam']) || $_SESSION['rol'] !== 'admin') {
 }
 
 // Database connectie
-$host = 'localhost'; // of je database host
+$host = 'localhost'; // Of je database host
 $dbname = 'techniekdjm_';
 $username = 'pr_djm';
 $password = '_7vd3nC37';
@@ -22,9 +22,20 @@ try {
 }
 
 // Haal het totaal aantal gebruikers op
-$stmt = $pdo->query("SELECT COUNT(*) FROM users");
-$totaalGebruikers = $stmt->fetchColumn();
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) FROM users");
+    $totaalGebruikers = $stmt->fetchColumn();
+} catch (Exception $e) {
+    $totaalGebruikers = 0; // Foutafhandeling
+}
 
+// Haal het totaal aantal boekingen op
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) FROM bookings");
+    $totaalBoekingen = $stmt->fetchColumn();
+} catch (Exception $e) {
+    $totaalBoekingen = 0; // Foutafhandeling
+}
 ?>
 
 <!DOCTYPE html>
@@ -67,7 +78,11 @@ $totaalGebruikers = $stmt->fetchColumn();
         <div class="stats">
             <div class="stat-box">
                 <h3>Totaal Aantal Gebruikers</h3>
-                <p><?php echo $totaalGebruikers; ?></p> <!-- Dynamisch totaal aantal gebruikers -->
+                <p><?php echo $totaalGebruikers; ?></p>
+            </div>
+            <div class="stat-box">
+                <h3>Totaal Aantal Boekingen</h3>
+                <p><?php echo $totaalBoekingen; ?></p>
             </div>
         </div>
     </div>
