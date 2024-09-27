@@ -30,20 +30,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inloggen</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="form-container">
-        <div class="form-box">
-            <h2>Inloggen</h2>
-            <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
-            <form action="login.php" method="POST">
-                <input type="text" name="gebruikersnaam" placeholder="Gebruikersnaam" required>
-                <input type="password" name="wachtwoord" placeholder="Wachtwoord" required>
-                <button type="submit">Inloggen</button>
-            </form>
-            <p>Nog geen account? <a href="register.php">Registreren</a></p>
+
+    <div class="navbar">
+        <div class="logo">
+            <a href="index.php">MijnWebsite</a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.php">Home</a></li>
+            <li><a href="register.php">Registreren</a></li>
+            <li><a class="active" href="login.php">Inloggen</a></li>
+        </ul>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
         </div>
     </div>
+
+    <div class="form-container">
+        <div class="form-box modern">
+            <h2>Inloggen</h2>
+            <form action="login_handler.php" method="POST">
+                <input type="text" name="username" placeholder="Gebruikersnaam" required>
+                <input type="password" name="password" placeholder="Wachtwoord" required>
+                <button type="submit">Log in</button>
+            </form>
+            <p>Nog geen account? <a href="register.php">Registreer hier</a></p>
+        </div>
+    </div>
+
 </body>
 </html>
