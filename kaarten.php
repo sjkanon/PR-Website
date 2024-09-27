@@ -1,60 +1,71 @@
 <?php
 session_start();
-require_once 'db.php';
 
-// Fetch data for 2023
-$sql2023 = "SELECT datum, zaterdag, zondag, totaal FROM kaartentellen_2023 ORDER BY datum";
-$result2023 = $conn->query($sql2023);
+// Database connection
+$servername = "localhost";
+$username = "pr_djm";
+$password = "_7vd3nC37";
+$dbname = "techniekdjm_";
 
-$dates2023 = [];
-$zaterdag2023 = [];
-$zondag2023 = [];
-$totaal2023 = [];
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-if ($result2023->num_rows > 0) {
-    while($row = $result2023->fetch_assoc()) {
-        $dates2023[] = $row["datum"];
-        $zaterdag2023[] = $row["zaterdag"];
-        $zondag2023[] = $row["zondag"];
-        $totaal2023[] = $row["totaal"];
-    }
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch data for 2024
-$sql2024 = "SELECT datum, zaterdag, zondag, totaal FROM kaartentellen_2024 ORDER BY datum";
-$result2024 = $conn->query($sql2024);
-
-$dates2024 = [];
-$zaterdag2024 = [];
-$zondag2024 = [];
-$totaal2024 = [];
-
-if ($result2024->num_rows > 0) {
-    while($row = $result2024->fetch_assoc()) {
-        $dates2024[] = $row["datum"];
-        $zaterdag2024[] = $row["zaterdag"];
-        $zondag2024[] = $row["zondag"];
-        $totaal2024[] = $row["totaal"];
+// Fetch data for 2023 and 2024
+function fetchData($year) {
+    global $conn;
+    $sql = "SELECT datum, zaterdag, zondag, totaal FROM kaartentellen_$year ORDER BY datum";
+    $result = $conn->query($sql);
+    $data = [
+        'dates' => [],
+        'zaterdag' => [],
+        'zondag' => [],
+        'totaal' => []
+    ];
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            $data['dates'][] = $row["datum"];
+            $data['zaterdag'][] = $row["zaterdag"];
+            $data['zondag'][] = $row["zondag"];
+            $data['totaal'][] = $row["totaal"];
+        }
     }
+    return $data;
 }
+
+$data2023 = fetchData(2023);
+$data2024 = fetchData(2024);
 
 $conn->close();
 
-// Calculate the difference between 2024 and 2023 totals
-$lastTotal2023 = end($totaal2023);
-$lastTotal2024 = end($totaal2024);
+// Calculate differences
+$diffDates = [];
+$diffZaterdag = [];
+$diffZondag = [];
+$diffTotaal = [];
+$maxDays = max(count($data2023['dates']), count($data2024['dates']));
+for ($i = 0; $i < $maxDays; $i++) {
+    $diffDates[] = isset($data2024['dates'][$i]) ? $data2024['dates'][$i] : $data2023['dates'][$i];
+    $diffZaterdag[] = (isset($data2024['zaterdag'][$i]) ? $data2024['zaterdag'][$i] : 0) - (isset($data2023['zaterdag'][$i]) ? $data2023['zaterdag'][$i] : 0);
+    $diffZondag[] = (isset($data2024['zondag'][$i]) ? $data2024['zondag'][$i] : 0) - (isset($data2023['zondag'][$i]) ? $data2023['zondag'][$i] : 0);
+    $diffTotaal[] = (isset($data2024['totaal'][$i]) ? $data2024['totaal'][$i] : 0) - (isset($data2023['totaal'][$i]) ? $data2023['totaal'][$i] : 0);
+}
+
+// Calculate latest totals and differences
+$lastTotal2023 = end($data2023['totaal']);
+$lastTotal2024 = end($data2024['totaal']);
 $totalDifference = $lastTotal2024 - $lastTotal2023;
 
-// Calculate the difference for each day
-$diffDates = [];
-$diffTotals = [];
-$maxDays = max(count($dates2023), count($dates2024));
-for ($i = 0; $i < $maxDays; $i++) {
-    $diffDates[] = isset($dates2024[$i]) ? $dates2024[$i] : $dates2023[$i];
-    $total2024 = isset($totaal2024[$i]) ? $totaal2024[$i] : 0;
-    $total2023 = isset($totaal2023[$i]) ? $totaal2023[$i] : 0;
-    $diffTotals[] = $total2024 - $total2023;
-}
+$lastZaterdag2023 = end($data2023['zaterdag']);
+$lastZaterdag2024 = end($data2024['zaterdag']);
+$zaterdagDifference = $lastZaterdag2024 - $lastZaterdag2023;
+
+$lastZondag2023 = end($data2023['zondag']);
+$lastZondag2024 = end($data2024['zondag']);
+$zondagDifference = $lastZondag2024 - $lastZondag2023;
+
 ?>
 
 <!DOCTYPE html>
@@ -63,63 +74,107 @@ for ($i = 0; $i < $maxDays; $i++) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kaartentellen 2023 vs 2024 Vergelijking</title>
-    <link rel="stylesheet" href="css/kaarten.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gauge-chart@latest/dist/bundle.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .menu {
+            width: 200px;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .chart-container {
+            margin-bottom: 30px;
+        }
+        .gauge-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        .gauge {
+            width: 300px;
+            height: 300px;
+        }
+        .navbar {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigatiebalk -->
     <nav class="navbar">
-        <div class="logo">
-            <a href="index.php">PR Deventer Jeugd Musical</a>
-        </div>
-        <ul class="nav-links">
-            <li><a href="index.php">Home</a></li>
-            <li><a href="about.html">Over Ons</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            
-            <?php if (isset($_SESSION['gebruikersnaam'])): ?>
-                <li><a href="kaarten.php">Kaarten</a></li>
-                <li><a href="profile.php">Profiel</a></li>
-                <?php if ($_SESSION['rol'] === 'admin'): ?>
-                    <li><a href="admin.php">Admin</a></li>
-                <?php endif; ?>
-                <li><a href="logout.php">Uitloggen</a></li>
-            <?php else: ?>
-                <li><a href="register.php">Registreren</a></li>
-                <li><a href="login.php">Inloggen</a></li>
+        <a href="index.php">Home</a>
+        <a href="about.html">Over Ons</a>
+        <a href="contact.html">Contact</a>
+        <?php if (isset($_SESSION['gebruikersnaam'])): ?>
+            <a href="kaarten.php">Kaarten</a>
+            <a href="profile.php">Profiel</a>
+            <?php if ($_SESSION['rol'] === 'admin'): ?>
+                <a href="admin.php">Admin</a>
             <?php endif; ?>
-        </ul>
+            <a href="logout.php">Uitloggen</a>
+        <?php else: ?>
+            <a href="register.php">Registreren</a>
+            <a href="login.php">Inloggen</a>
+        <?php endif; ?>
     </nav>
 
     <div class="container">
-        <!-- Left Menu -->
         <div class="menu">
             <h3>Menu</h3>
             <ul>
-                <li><a href="#graph2023">Grafiek 2023</a></li>
-                <li><a href="#graph2024">Grafiek 2024</a></li>
-                <li><a href="#graphDifference">Verschil Grafiek</a></li>
+                <li><a href="#graphs">Grafieken</a></li>
+                <li><a href="#gauges">Meters</a></li>
                 <li><a href="#comparison">Vergelijking</a></li>
             </ul>
         </div>
 
-        <!-- Content -->
         <div class="content">
             <h1>Kaartentellen 2023 vs 2024 Vergelijking</h1>
 
-            <div id="graph2023" class="chart-container">
-                <h2>Kaartentellen 2023</h2>
-                <canvas id="myChart2023"></canvas>
+            <div id="graphs">
+                <div id="graph2023" class="chart-container">
+                    <h2>Kaartentellen 2023</h2>
+                    <canvas id="myChart2023"></canvas>
+                </div>
+
+                <div id="graph2024" class="chart-container">
+                    <h2>Kaartentellen 2024</h2>
+                    <canvas id="myChart2024"></canvas>
+                </div>
+
+                <div id="graphDifference" class="chart-container">
+                    <h2>Verschil 2024 - 2023</h2>
+                    <canvas id="myChartDifference"></canvas>
+                </div>
             </div>
 
-            <div id="graph2024" class="chart-container">
-                <h2>Kaartentellen 2024</h2>
-                <canvas id="myChart2024"></canvas>
-            </div>
-
-            <div id="graphDifference" class="chart-container">
-                <h2>Verschil 2024 - 2023</h2>
-                <canvas id="myChartDifference"></canvas>
+            <div id="gauges" class="gauge-container">
+                <div class="gauge" id="gaugeTotal"></div>
+                <div class="gauge" id="gaugeZaterdag"></div>
+                <div class="gauge" id="gaugeZondag"></div>
             </div>
 
             <div id="comparison">
@@ -127,6 +182,8 @@ for ($i = 0; $i < $maxDays; $i++) {
                 <p>Totaal aantal kaarten 2023: <?php echo $lastTotal2023; ?></p>
                 <p>Totaal aantal kaarten 2024: <?php echo $lastTotal2024; ?></p>
                 <p>Verschil in totaal aantal kaarten: <?php echo $totalDifference; ?></p>
+                <p>Zaterdag 2023: <?php echo $lastZaterdag2023; ?>, Zaterdag 2024: <?php echo $lastZaterdag2024; ?>, Verschil: <?php echo $zaterdagDifference; ?></p>
+                <p>Zondag 2023: <?php echo $lastZondag2023; ?>, Zondag 2024: <?php echo $lastZondag2024; ?>, Verschil: <?php echo $zondagDifference; ?></p>
             </div>
 
             <script>
@@ -164,15 +221,27 @@ for ($i = 0; $i < $maxDays; $i++) {
                 });
             }
 
-            function createDifferenceChart(canvasId, labels, difference) {
+            function createDifferenceChart(canvasId, labels, zaterdag, zondag, totaal) {
                 var ctx = document.getElementById(canvasId).getContext('2d');
                 return new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Verschil (2024 - 2023)',
-                            data: difference,
+                            label: 'Zaterdag Verschil',
+                            data: zaterdag,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Zondag Verschil',
+                            data: zondag,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Totaal Verschil',
+                            data: totaal,
                             backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgb(75, 192, 192)',
                             borderWidth: 1
@@ -189,9 +258,25 @@ for ($i = 0; $i < $maxDays; $i++) {
                 });
             }
 
-            createChart('myChart2023', <?php echo json_encode($dates2023); ?>, <?php echo json_encode($zaterdag2023); ?>, <?php echo json_encode($zondag2023); ?>, <?php echo json_encode($totaal2023); ?>);
-            createChart('myChart2024', <?php echo json_encode($dates2024); ?>, <?php echo json_encode($zaterdag2024); ?>, <?php echo json_encode($zondag2024); ?>, <?php echo json_encode($totaal2024); ?>);
-            createDifferenceChart('myChartDifference', <?php echo json_encode($diffDates); ?>, <?php echo json_encode($diffTotals); ?>);
+            function createGauge(elementId, value, maxValue, label) {
+                GaugeChart.gaugeChart(document.getElementById(elementId), 300, {
+                    hasNeedle: true,
+                    needleColor: 'gray',
+                    needleUpdateSpeed: 1000,
+                    arcColors: ['rgb(44, 151, 222)', 'lightgray'],
+                    arcDelimiters: [value / maxValue * 100],
+                    rangeLabel: ['0', maxValue.toString()],
+                    centralLabel: label,
+                });
+            }
+
+            createChart('myChart2023', <?php echo json_encode($data2023['dates']); ?>, <?php echo json_encode($data2023['zaterdag']); ?>, <?php echo json_encode($data2023['zondag']); ?>, <?php echo json_encode($data2023['totaal']); ?>);
+            createChart('myChart2024', <?php echo json_encode($data2024['dates']); ?>, <?php echo json_encode($data2024['zaterdag']); ?>, <?php echo json_encode($data2024['zondag']); ?>, <?php echo json_encode($data2024['totaal']); ?>);
+            createDifferenceChart('myChartDifference', <?php echo json_encode($diffDates); ?>, <?php echo json_encode($diffZaterdag); ?>, <?php echo json_encode($diffZondag); ?>, <?php echo json_encode($diffTotaal); ?>);
+
+            createGauge('gaugeTotal', <?php echo $lastTotal2024; ?>, 1476, 'Totaal: <?php echo $lastTotal2024; ?> (<?php echo $totalDifference >= 0 ? "+$totalDifference" : $totalDifference; ?>)');
+            createGauge('gaugeZaterdag', <?php echo $lastZaterdag2024; ?>, 738, 'Zaterdag: <?php echo $lastZaterdag2024; ?> (<?php echo $zaterdagDifference >= 0 ? "+$zaterdagDifference" : $zaterdagDifference; ?>)');
+            createGauge('gaugeZondag', <?php echo $lastZondag2024; ?>, 738, 'Zondag: <?php echo $lastZondag2024; ?> (<?php echo $zondagDifference >= 0 ? "+$zondagDifference" : $zondagDifference; ?>)');
             </script>
         </div>
     </div>
