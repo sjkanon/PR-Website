@@ -6,6 +6,28 @@ if (!isset($_SESSION['gebruikersnaam']) || $_SESSION['rol'] !== 'admin') {
     header("Location: index.php");
     exit();
 }
+
+// Database connectie
+$host = 'localhost'; // of je database host
+$dbname = 'techniekdjm_';
+$username = 'pr_djm';
+$password = '_7vd3nC37';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo "Database verbinding mislukt: " . $e->getMessage();
+    exit();
+}
+
+// Haal het totaal aantal gebruikers op
+$stmt = $pdo->query("SELECT COUNT(*) FROM users");
+$totaalGebruikers = $stmt->fetchColumn();
+
+// Haal het totaal aantal boekingen op
+$stmt = $pdo->query("SELECT COUNT(*) FROM bookings");
+$totaalBoekingen = $stmt->fetchColumn();
 ?>
 
 <!DOCTYPE html>
@@ -48,11 +70,11 @@ if (!isset($_SESSION['gebruikersnaam']) || $_SESSION['rol'] !== 'admin') {
         <div class="stats">
             <div class="stat-box">
                 <h3>Totaal Aantal Gebruikers</h3>
-                <p><!-- Voeg hier de totale gebruikerscode in --></p>
+                <p><?php echo $totaalGebruikers; ?></p> <!-- Dynamisch totaal aantal gebruikers -->
             </div>
             <div class="stat-box">
                 <h3>Totaal Aantal Boekingen</h3>
-                <p><!-- Voeg hier het totale boekingen code in --></p>
+                <p><?php echo $totaalBoekingen; ?></p> <!-- Dynamisch totaal aantal boekingen -->
             </div>
         </div>
     </div>
