@@ -2,7 +2,11 @@
 session_start();
 require_once 'db.php';
 
-// Fetch data for 2024 and 2025
+// Determine current and previous years
+$currentYear = date("Y");
+$previousYear = $currentYear - 1;
+
+// Fetch data for current and previous years
 function fetchData($year) {
     global $conn;
     $sql = "SELECT datum, zaterdag, zondag, totaal FROM kaartentellen_$year ORDER BY datum";
@@ -13,7 +17,7 @@ function fetchData($year) {
         'zondag' => [],
         'totaal' => []
     ];
-    if ($result->num_rows > 0) {
+    if ($result && $result->num_rows > 0) {
         while($row = $result->fetch_assoc()) {
             $data['dates'][] = $row["datum"];
             $data['zaterdag'][] = $row["zaterdag"];
@@ -24,8 +28,8 @@ function fetchData($year) {
     return $data;
 }
 
-$data2024 = fetchData(2024);
-$data2025 = fetchData(2025);
+$dataPreviousYear = fetchData($previousYear);
+$dataCurrentYear = fetchData($currentYear);
 
 $conn->close();
 
@@ -34,26 +38,26 @@ $diffDates = [];
 $diffZaterdag = [];
 $diffZondag = [];
 $diffTotaal = [];
-$maxDays = max(count($data2024['dates']), count($data2025['dates']));
+$maxDays = max(count($dataPreviousYear['dates']), count($dataCurrentYear['dates']));
 for ($i = 0; $i < $maxDays; $i++) {
-    $diffDates[] = isset($data2025['dates'][$i]) ? $data2025['dates'][$i] : $data2024['dates'][$i];
-    $diffZaterdag[] = (isset($data2025['zaterdag'][$i]) ? $data2025['zaterdag'][$i] : 0) - (isset($data2024['zaterdag'][$i]) ? $data2024['zaterdag'][$i] : 0);
-    $diffZondag[] = (isset($data2025['zondag'][$i]) ? $data2025['zondag'][$i] : 0) - (isset($data2024['zondag'][$i]) ? $data2024['zondag'][$i] : 0);
-    $diffTotaal[] = (isset($data2025['totaal'][$i]) ? $data2025['totaal'][$i] : 0) - (isset($data2024['totaal'][$i]) ? $data2024['totaal'][$i] : 0);
+    $diffDates[] = isset($dataCurrentYear['dates'][$i]) ? $dataCurrentYear['dates'][$i] : $dataPreviousYear['dates'][$i];
+    $diffZaterdag[] = (isset($dataCurrentYear['zaterdag'][$i]) ? $dataCurrentYear['zaterdag'][$i] : 0) - (isset($dataPreviousYear['zaterdag'][$i]) ? $dataPreviousYear['zaterdag'][$i] : 0);
+    $diffZondag[] = (isset($dataCurrentYear['zondag'][$i]) ? $dataCurrentYear['zondag'][$i] : 0) - (isset($dataPreviousYear['zondag'][$i]) ? $dataPreviousYear['zondag'][$i] : 0);
+    $diffTotaal[] = (isset($dataCurrentYear['totaal'][$i]) ? $dataCurrentYear['totaal'][$i] : 0) - (isset($dataPreviousYear['totaal'][$i]) ? $dataPreviousYear['totaal'][$i] : 0);
 }
 
 // Calculate latest totals and differences
-$lastTotal2024 = end($data2024['totaal']);
-$lastTotal2025 = end($data2025['totaal']);
-$totalDifference = $lastTotal2025 - $lastTotal2024;
+$lastTotalPrevious = end($dataPreviousYear['totaal']) ?: 0;
+$lastTotalCurrent = end($dataCurrentYear['totaal']) ?: 0;
+$totalDifference = $lastTotalCurrent - $lastTotalPrevious;
 
-$lastZaterdag2024 = end($data2024['zaterdag']);
-$lastZaterdag2025 = end($data2025['zaterdag']);
-$zaterdagDifference = $lastZaterdag2025 - $lastZaterdag2024;
+$lastZaterdagPrevious = end($dataPreviousYear['zaterdag']) ?: 0;
+$lastZaterdagCurrent = end($dataCurrentYear['zaterdag']) ?: 0;
+$zaterdagDifference = $lastZaterdagCurrent - $lastZaterdagPrevious;
 
-$lastZondag2024 = end($data2024['zondag']);
-$lastZondag2025 = end($data2025['zondag']);
-$zondagDifference = $lastZondag2025 - $lastZondag2024;
+$lastZondagPrevious = end($dataPreviousYear['zondag']) ?: 0;
+$lastZondagCurrent = end($dataCurrentYear['zondag']) ?: 0;
+$zondagDifference = $lastZondagCurrent - $lastZondagPrevious;
 
 ?>
 
@@ -62,7 +66,7 @@ $zondagDifference = $lastZondag2025 - $lastZondag2024;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaartentellen 2024 vs 2025 Vergelijking</title>
+    <title>Kaartentellen <?php echo $previousYear; ?> vs <?php echo $currentYear; ?> Vergelijking</title>
     <link rel="stylesheet" href="css/kaarten.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gauge-chart@latest/dist/bundle.js"></script>
@@ -102,21 +106,21 @@ $zondagDifference = $lastZondag2025 - $lastZondag2024;
         </div>
 
         <div class="content">
-            <h1>Kaartentellen 2024 vs 2025 Vergelijking</h1>
+            <h1>Kaartentellen <?php echo $previousYear; ?> vs <?php echo $currentYear; ?> Vergelijking</h1>
 
             <div id="graphs">
-                <div id="graph2024" class="chart-container">
-                    <h2>Kaartentellen 2024</h2>
-                    <canvas id="myChart2024"></canvas>
+                <div id="graphPrevious" class="chart-container">
+                    <h2>Kaartentellen <?php echo $previousYear; ?></h2>
+                    <canvas id="myChartPrevious"></canvas>
                 </div>
 
-                <div id="graph2025" class="chart-container">
-                    <h2>Kaartentellen 2025</h2>
-                    <canvas id="myChart2025"></canvas>
+                <div id="graphCurrent" class="chart-container">
+                    <h2>Kaartentellen <?php echo $currentYear; ?></h2>
+                    <canvas id="myChartCurrent"></canvas>
                 </div>
 
                 <div id="graphDifference" class="chart-container">
-                    <h2>Verschil 2025 - 2024</h2>
+                    <h2>Verschil <?php echo $currentYear; ?> - <?php echo $previousYear; ?></h2>
                     <canvas id="myChartDifference"></canvas>
                 </div>
             </div>
@@ -128,12 +132,12 @@ $zondagDifference = $lastZondag2025 - $lastZondag2024;
             </div>
 
             <div id="comparison">
-                <h2>Vergelijking 2024 vs 2025</h2>
-                <p>Totaal aantal kaarten 2024: <?php echo $lastTotal2024; ?></p>
-                <p>Totaal aantal kaarten 2025: <?php echo $lastTotal2025; ?></p>
+                <h2>Vergelijking <?php echo $previousYear; ?> vs <?php echo $currentYear; ?></h2>
+                <p>Totaal aantal kaarten <?php echo $previousYear; ?>: <?php echo $lastTotalPrevious; ?></p>
+                <p>Totaal aantal kaarten <?php echo $currentYear; ?>: <?php echo $lastTotalCurrent; ?></p>
                 <p>Verschil in totaal aantal kaarten: <?php echo $totalDifference; ?></p>
-                <p>Zaterdag 2024: <?php echo $lastZaterdag2024; ?>, Zaterdag 2025: <?php echo $lastZaterdag2025; ?>, Verschil: <?php echo $zaterdagDifference; ?></p>
-                <p>Zondag 2024: <?php echo $lastZondag2024; ?>, Zondag 2025: <?php echo $lastZondag2025; ?>, Verschil: <?php echo $zondagDifference; ?></p>
+                <p>Zaterdag <?php echo $previousYear; ?>: <?php echo $lastZaterdagPrevious; ?>, Zaterdag <?php echo $currentYear; ?>: <?php echo $lastZaterdagCurrent; ?>, Verschil: <?php echo $zaterdagDifference; ?></p>
+                <p>Zondag <?php echo $previousYear; ?>: <?php echo $lastZondagPrevious; ?>, Zondag <?php echo $currentYear; ?>: <?php echo $lastZondagCurrent; ?>, Verschil: <?php echo $zondagDifference; ?></p>
             </div>
 
             <script>
@@ -220,13 +224,13 @@ $zondagDifference = $lastZondag2025 - $lastZondag2024;
                 });
             }
 
-            createChart('myChart2024', <?php echo json_encode($data2024['dates']); ?>, <?php echo json_encode($data2024['zaterdag']); ?>, <?php echo json_encode($data2024['zondag']); ?>, <?php echo json_encode($data2024['totaal']); ?>);
-            createChart('myChart2025', <?php echo json_encode($data2025['dates']); ?>, <?php echo json_encode($data2025['zaterdag']); ?>, <?php echo json_encode($data2025['zondag']); ?>, <?php echo json_encode($data2025['totaal']); ?>);
+            createChart('myChartPrevious', <?php echo json_encode($dataPreviousYear['dates']); ?>, <?php echo json_encode($dataPreviousYear['zaterdag']); ?>, <?php echo json_encode($dataPreviousYear['zondag']); ?>, <?php echo json_encode($dataPreviousYear['totaal']); ?>);
+            createChart('myChartCurrent', <?php echo json_encode($dataCurrentYear['dates']); ?>, <?php echo json_encode($dataCurrentYear['zaterdag']); ?>, <?php echo json_encode($dataCurrentYear['zondag']); ?>, <?php echo json_encode($dataCurrentYear['totaal']); ?>);
             createDifferenceChart('myChartDifference', <?php echo json_encode($diffDates); ?>, <?php echo json_encode($diffZaterdag); ?>, <?php echo json_encode($diffZondag); ?>, <?php echo json_encode($diffTotaal); ?>);
 
-            createGauge('gaugeTotal', <?php echo $lastTotal2025; ?>, 1476, 'Totaal: <?php echo $lastTotal2025; ?> (<?php echo $totalDifference >= 0 ? "+$totalDifference" : $totalDifference; ?>)');
-            createGauge('gaugeZaterdag', <?php echo $lastZaterdag2025; ?>, 738, 'Zaterdag: <?php echo $lastZaterdag2025; ?> (<?php echo $zaterdagDifference >= 0 ? "+$zaterdagDifference" : $zaterdagDifference; ?>)');
-            createGauge('gaugeZondag', <?php echo $lastZondag2025; ?>, 738, 'Zondag: <?php echo $lastZondag2025; ?> (<?php echo $zondagDifference >= 0 ? "+$zondagDifference" : $zondagDifference; ?>)');
+            createGauge('gaugeTotal', <?php echo $lastTotalCurrent; ?>, 1476, 'Totaal: <?php echo $lastTotalCurrent; ?> (<?php echo $totalDifference >= 0 ? "+$totalDifference" : $totalDifference; ?>)');
+            createGauge('gaugeZaterdag', <?php echo $lastZaterdagCurrent; ?>, 738, 'Zaterdag: <?php echo $lastZaterdagCurrent; ?> (<?php echo $zaterdagDifference >= 0 ? "+$zaterdagDifference" : $zaterdagDifference; ?>)');
+            createGauge('gaugeZondag', <?php echo $lastZondagCurrent; ?>, 738, 'Zondag: <?php echo $lastZondagCurrent; ?> (<?php echo $zondagDifference >= 0 ? "+$zondagDifference" : $zondagDifference; ?>)');
             </script>
         </div>
     </div>
